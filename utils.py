@@ -258,7 +258,7 @@ def obtain_label(loader, net):
             labels = data[1]
 
             inputs = inputs.cuda()
-            feas, _, _, outputs, _ = net(inputs)
+            feas, _, _, outputs, _ = net(inputs) # feas=?, outputs=?
 
             if start_test:
                 all_fea = feas.float().cpu()

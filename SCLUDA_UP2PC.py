@@ -43,6 +43,9 @@ best_acc_all = 0.0
 best_G,best_RandPerm,best_Row, best_Column,best_nTrain = None,None,None,None,None
 
 def get_probs(data_loader, data_loader_t):
+    '''
+    Train SVM(SVC) on train data and extract probablities for Test data
+    '''
     train_features, train_labels = utils.extract_embeddings(feature_encoder, data_loader)
     clt = svm.SVC(probability=True)
     clt.fit(train_features, train_labels)
@@ -51,6 +54,11 @@ def get_probs(data_loader, data_loader_t):
     return probs
 
 def clean_sampling_epoch(labels, probabilities, output):
+    '''
+    labels = SVM output
+    probablities = Classifier output
+    output = ? | maybe original taget label from dataset
+    '''
     labels = np.array(labels)
     probabilities = np.array(probabilities)
     print("start clean samples")
@@ -66,8 +74,14 @@ def clean_sampling_epoch(labels, probabilities, output):
     for idx in label_error_indices:
         label_error_mask[idx] = True
 
+
+    # CLM is implemented using CleanLab v1.0
+    # cleanlab.pruning.get_noise_indices() is depricated and replaced with cleanlab.filter.find_label_issues()
+    # new command doc : https://docs.cleanlab.ai/stable/cleanlab/filter.html#cleanlab.filter.find_label_issues
     label_errors_bool = cleanlab.pruning.get_noise_indices(labels, probabilities, prune_method='prune_by_class')
 
+
+    # ordered_label_errors = ???
     ordered_label_errors = cleanlab.pruning.order_label_errors(
         label_errors_bool=label_errors_bool,
         psx=probabilities,
@@ -79,8 +93,12 @@ def clean_sampling_epoch(labels, probabilities, output):
     all_labels_idx = []  # 所有标签的索引
     print('len of all_lables', len(labels))
     print('len of errors_lables', len(ordered_label_errors))
+
+    # Cant i write all_labels_idx = list(range(len(labels))) ?
     for i in range(len(labels)):
         all_labels_idx.append(i)
+
+
     if len(ordered_label_errors) == 0:
         true_labels_idx = all_labels_idx
     else:
@@ -121,6 +139,9 @@ def clean_sampling_epoch(labels, probabilities, output):
     clean_accuracy = right_score / len(true_labels_idx)
     print('clean samples finished')
     return target_datas, target_labels, class_weights, clean_accuracy
+
+
+# ==========================================================================================================================================
 
 for iDataSet in range(nDataSet):
     print('#######################idataset######################## ', iDataSet)
@@ -165,9 +186,10 @@ for iDataSet in range(nDataSet):
     loss3 = []
 
 
-    for epoch in range(1, epochs + 1):
+    for epoch in range(1, epochs + 1):    # 1 - 100
         LEARNING_RATE = lr #/ math.pow((1 + 10 * (epoch - 1) / epochs), 0.75)
         print('learning rate{: .4f}'.format(LEARNING_RATE))
+        # =============================================================================================================================================
         optimizer = torch.optim.SGD([
             {'params': feature_encoder.feature_layers.parameters(),},
             {'params': feature_encoder.fc1.parameters(), 'lr': LEARNING_RATE},
@@ -175,17 +197,18 @@ for iDataSet in range(nDataSet):
             {'params': feature_encoder.head1.parameters(), 'lr': LEARNING_RATE},
             {'params': feature_encoder.head2.parameters(), 'lr': LEARNING_RATE},
         ], lr=LEARNING_RATE , momentum=momentum, weight_decay=l2_decay)
+        # =============================================================================================================================================
 
         feature_encoder.train()
 
-        if (epoch >= train_num and epoch < epochs) and epoch % 20 == 0:
+        if (epoch >= train_num and epoch < epochs) and epoch % 20 == 0:  # epoch == [40, 60, 80, 100] - perform CLM for only 4 of these epochs
             print('get  fake label,ep = ', epoch)
-            fake_label, output = utils.obtain_label(test_loader, feature_encoder)
+            fake_label, output = utils.obtain_label(test_loader, feature_encoder) # fake lable = pseudo label = by classifier
 
             print('get probs,ep=', epoch)
-            probs = get_probs(train_loader_s, test_loader)
+            probs = get_probs(train_loader_s, test_loader) # probs = true label = by SVM
 
-            clean_datas, clean_labels, class_weights, clean_acc = clean_sampling_epoch(fake_label, probs, output)
+            clean_datas, clean_labels, class_weights, clean_acc = clean_sampling_epoch(fake_label, probs, output) # CLM - confidence learning module && Pruning
 
             clean_datasets = TensorDataset(torch.tensor(clean_datas), torch.tensor(clean_labels))
             clean_loader = DataLoader(clean_datasets, batch_size=BATCH_SIZE, shuffle=True, num_workers=0,drop_last=True)
@@ -196,7 +219,7 @@ for iDataSet in range(nDataSet):
             iter_clean = iter(clean_loader)
             len_clean_loader = len(iter_clean)
         num_iter = len_source_loader
-
+# =====================================================================================================================================================
         for i in range(1,num_iter):
             source_data, source_label = iter_source.next()
             target_data, target_label = iter_target.next()
