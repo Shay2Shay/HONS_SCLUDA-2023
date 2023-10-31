@@ -16,10 +16,11 @@ from sklearn import svm
 import cleanlab
 
 ##################################
+# Dataset = https://www.ehu.eus/ccwintco/index.php/Hyperspectral_Remote_Sensing_Scenes#Pavia_Centre_and_University
 data_path_s = './datasets/Pavia/paviaU.mat'
-label_path_s = './datasets/Pavia/paviaU_gt_7.mat'
+label_path_s = './datasets/Pavia/paviaU_gt.mat'
 data_path_t = './datasets/Pavia/pavia.mat'
-label_path_t = './datasets/Pavia/pavia_gt_7.mat'
+label_path_t = './datasets/Pavia/pavia_gt.mat'
 
 data_s,label_s = utils.load_data_pavia(data_path_s,label_path_s)
 data_t,label_t = utils.load_data_pavia(data_path_t,label_path_t)
