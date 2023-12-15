@@ -238,12 +238,18 @@ for iDataSet in range(nDataSet):
             # 3
             target_data1 = utils.flip_augmentation(target_data)
 
+
+# Model Interaction
+# _________________________________________________________________________________________________________________________
             source_features, source1, _, source_outputs, source_out= feature_encoder(source_data.cuda())
             _, source2, _, _ ,_ = feature_encoder(source_data0.cuda())
             _, source3, _, _ ,_= feature_encoder(source_data1.cuda())
             target_features, _, target1, target_outputs, target_out = feature_encoder(target_data.cuda())
             _, _, target2, t1, _= feature_encoder(target_data0.cuda())
             _, _, target3, t2, _= feature_encoder(target_data1.cuda())
+# _________________________________________________________________________________________________________________________
+
+
 
             softmax_output_t = nn.Softmax(dim=1)(target_outputs).detach()
             _, pseudo_label_t = torch.max(softmax_output_t, 1)

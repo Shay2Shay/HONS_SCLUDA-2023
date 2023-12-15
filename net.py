@@ -141,6 +141,8 @@ class DCRN_02(nn.Module):
         self.bn4 = nn.BatchNorm3d(192)
         self.activation4 = nn.ReLU()
 
+
+# __________________________________________________________________________________________________________________
         # Convolution layer for spatial information
         self.conv5 = nn.Conv3d(1, 24, (self.feature_dim, 1, 1))
         self.bn5 = nn.BatchNorm3d(24)
@@ -210,6 +212,9 @@ class DCRN_02(nn.Module):
         x1 = self.activation4(self.bn4(x1))
         x1 = x1.reshape(x1.size(0), x1.size(1), x1.size(3), x1.size(4))  # (32,128,7,7)
 
+
+
+# _________________________________________________________________________________________________________________________
         x2 = self.conv5(x)  # (32,24,1,7,7)
         x2 = self.activation5(self.bn5(x2))
 
