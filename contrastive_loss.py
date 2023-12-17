@@ -62,12 +62,12 @@ class SupConLoss(nn.Module):
         if labels is not None and mask is not None:
             raise ValueError('Cannot define both `labels` and `mask`')
         elif labels is None and mask is None:
-            mask = torch.eye(batch_size, dtype=torch.float32).to(device)
+            mask = torch.eye(batch_size, dtype=torch.float32).to(device) # Identity matrix
         elif labels is not None:
-            labels = labels.contiguous().view(-1, 1)
+            labels = labels.contiguous().view(-1, 1) # all labels from (1,32) to (32,1) || given batch_size = 32
             if labels.shape[0] != batch_size:
                 raise ValueError('Num of labels does not match num of features')
-            mask = torch.eq(labels, labels.T).float().to(device)
+            mask = torch.eq(labels, labels.T).float().to(device) # eventually equals to identity matrix
         else:
             mask = mask.float().to(device)
 

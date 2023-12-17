@@ -259,18 +259,18 @@ for iDataSet in range(nDataSet):
             all_target_con_features = torch.cat([target2.unsqueeze(1), target3.unsqueeze(1)], dim=1)
 
             # Loss Cls
-            cls_loss = crossEntropy(source_outputs, source_label.cuda())
+            cls_loss = crossEntropy(source_outputs, source_label.cuda())  # Train on Source for source domain - supervised
             # Loss Lmmd
             lmmd_loss = mmd.lmmd(source_features, target_features, source_label,
                                  torch.nn.functional.softmax(target_outputs, dim=1), BATCH_SIZE=BATCH_SIZE,
                                  CLASS_NUM=CLASS_NUM)
             lambd = 2 / (1 + math.exp(-10 * (epoch) / epochs)) - 1
             # Loss Con_s
-            contrastive_loss_s = ContrastiveLoss_s(all_source_con_features, source_label)
+            contrastive_loss_s = ContrastiveLoss_s(all_source_con_features, source_label) # Contarctive learning for source - augmented source = radiation noise + random flip
             # Loss Con_t
-            contrastive_loss_t = ContrastiveLoss_t(all_target_con_features, pseudo_label_t)
+            contrastive_loss_t = ContrastiveLoss_t(all_target_con_features, pseudo_label_t) # Contrastive learning for target - augmented target = radiation noise + random flip
             # Loss Occ
-            domain_similar_loss = DSH_loss(source_out, target_out)
+            domain_similar_loss = DSH_loss(source_out, target_out)  # utils.Domain_Occ_loss = class(nn.Module) = couldnt understant the code - how it works - why it works
 
             loss = cls_loss + 0.3 * lambd * lmmd_loss + contrastive_loss_s + contrastive_loss_t + domain_similar_loss
 
