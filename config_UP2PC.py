@@ -1,11 +1,11 @@
 nDataSet = 10
 
-BATCH_SIZE = 32
+BATCH_SIZE = 64
 epochs = 100
 lr = 0.001
 CLASS_NUM = 7
 nBand = 102
-HalfWidth =  5
+HalfWidth =  4 # 5
 train_num = 40
 
 momentum = 0.9

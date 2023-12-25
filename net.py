@@ -195,7 +195,14 @@ class DCRN_02(nn.Module):
                 m.bias.data.zero_()
 
     def forward(self, x):
+        '''
+        Expected Input Shape = (64,1,100,9,9)
+        Input into this function comes form dataloader
+        which gets data from utils.get_all_data() and utils.get_sample_data()
+        match the output from there
+        '''
         x = x.unsqueeze(1)  # (64,1,100,9,9)
+        # print(x.shape, (64,1,100,9,9))
         # Convolution layer 1
         x1 = self.conv1(x)
         x1 = self.activation1(self.bn1(x1))
@@ -204,6 +211,7 @@ class DCRN_02(nn.Module):
         x1 = self.conv2(x1)
         x1 = self.activation2(self.bn2(x1))
         x1 = self.conv3(x1)
+        print(f"SIZE = {x1.size()} >><< (32,24,21,7,7)")
         x1 = residual + x1  # (32,24,21,7,7)
         x1 = self.activation3(self.bn3(x1))
 

@@ -28,7 +28,7 @@ class Domain_Occ_loss(nn.Module):
 
         return loss
 #load data methods
-def cubeData(file_path):
+def cubeData(file_path): # -----------------------------------------> used only in SH2HZ
     total = sio.loadmat(file_path)
 
     data1 = total['DataCube1'] #up
@@ -134,16 +134,39 @@ def load_data_pavia(image_file, label_file):
     return Data_Band_Scaler, GroundTruth  # image:(512,217,3),label:(512,217)
 
 def get_sample_data(Sample_data, Sample_label, HalfWidth, num_per_class):
+    '''
+    This function if for source dataset only (pavia)
+    for target dataset -> utils.get_all_data(...)
+
+    it returns shuffled data maybe
+    spacial information should be lost
+    '''
     print('get_sample_data() run...')
     print('The original sample data shape:',Sample_data.shape)
     nBand = Sample_data.shape[2]
 
+# ====================================================Didnt understand purpose============================================================
+    '''
+    HalfWidth = 1
+    Sample_data = np.random.random((3, 3, 3))
+    data = np.pad(Sample_data, ((HalfWidth, HalfWidth), (HalfWidth, HalfWidth), (0, 0)), mode='constant')
+
+
+    ========================================================
+    Original shape: (3, 3, 3)
+    Padded shape  : (5, 5, 3)
+
+    ========================================================
+    -> (HalfWidth, HalfWidth) is specifying the padding for the first and second dimensions (height and width), and (0, 0) is specifying no padding for the third dimension (channels).
+    -> 'constant' means that the array is padded with a constant value, which is the default value of 0.
+    '''
     data = np.pad(Sample_data, ((HalfWidth, HalfWidth), (HalfWidth, HalfWidth), (0, 0)), mode='constant')
     label = np.pad(Sample_label, HalfWidth, mode='constant')
+# ========================================================================================================================================
 
     train = {}
     train_indices = []
-    [Row, Column] = np.nonzero(label)
+    [Row, Column] = np.nonzero(label) # array of array pair
     m = int(np.max(label))
     print(f'num_class : {m}')
 
@@ -197,6 +220,14 @@ def get_sample_data(Sample_data, Sample_label, HalfWidth, num_per_class):
 
     print('sample data shape', processed_data.shape)
     print('sample label shape', processed_label.shape)
+
+# ===============================================================================
+    '''
+    Extra line added
+    '''
+    processed_data = processed_data[:,:100,:,:]
+# ===============================================================================
+
     print('get_sample_data() end...')
     return processed_data, processed_label#, val_data, val_label
 

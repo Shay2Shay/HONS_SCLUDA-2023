@@ -241,6 +241,7 @@ for iDataSet in range(nDataSet):
 
 # Model Interaction
 # _________________________________________________________________________________________________________________________
+            print("==================================== ERROR STARTS ====================================")
             source_features, source1, _, source_outputs, source_out= feature_encoder(source_data.cuda())
             _, source2, _, _ ,_ = feature_encoder(source_data0.cuda())
             _, source3, _, _ ,_= feature_encoder(source_data1.cuda())
